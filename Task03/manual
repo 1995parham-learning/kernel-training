@@ -1,0 +1,94 @@
+Install and Configure git
+===========================
+I'll leave you to figure out how to install git on your system - one thing you will need to is run this command once you've finished setting it up.
+
+[git config --global format.signoff true]
+
+That will format the patches so they are acceptable to the kernel gods.
+
+Clone The Linux Kernel
+===========================
+Nice and easy - will take a little bit of time as the kernel is quite large.
+
+[git clone -b staging-next git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git]
+
+Then, of course, cd into the directory.
+
+A New Branch
+==========================
+We need to create a branch to work on.
+
+[git branch mypatch]
+
+Then, let's switch to the new branch.
+
+[git checkout mypatch]
+
+Make The Edits
+==========================
+Open up your favourite code editor, and make the changes :-)
+Check The Diff
+
+Double check that the changes are what we expect.
+
+[git diff]
+
+Commit The Changes
+==========================
+[git commit -a]
+
+Create The Patch
+==========================
+We want to create a patch for master from the spelling branch.
+
+[git format-patch master..mypatch]
+
+That will create a file called something like:
+
+0001-Your-commit-message.patch
+
+Check Your Working
+==========================
+There are some scripts which will make sure everything is hunk-dory.
+
+[./scripts/checkpatch.pl 0001-Your-commit-message.patch]
+
+Who To Mail?
+==========================
+The patch has to be emailed to the maintainer of the code. Optionally, it can go to other people as well.
+
+For a "trivial" patch - we can send it to the Linux Kernel Trivial Patch Monkey - trivial๑kernel.org.
+
+[./scripts/get_maintainer.pl 0001-Your-commit-message.patch]
+
+Out should pop an email address!
+
+Setting Up Email
+==========================
+If you haven't already, git needs to be able to send email.
+
+Install git-email
+==========================
+[sudo apt-get install git-email]
+
+This needs adding to ~/.gitconfig
+
+[sendemail]
+from = YourName < email@example.com >
+smtpserver = smtp.gmail.com
+smtpuser = email@gmail.com
+smtpencryption = tls
+smtppass = PASSWORD
+chainreplyto = false
+smtpserverport = 587
+
+Personally, I set an app specific password in the Gmail Security panel.
+
+Ok, so let's send this puppy!
+
+[git send-email --to whoever@example.org --cc someoneelse@example.com 0001-Your-commit-message.patch]
+
+This will launch an interactive interface where you can double-check everything and, if you're happy, send the email.
+That's All Folks
+
+Well, that's all it takes to send in a patch request.

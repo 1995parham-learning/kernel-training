@@ -1,0 +1,2 @@
+Linux parham-X202E 3.18.0-rc7-eudyptula-00176-g3a18ca0-dirty #2 SMP Wed Dec 3 09:08:27 IRST 2014 x86_64 x86_64 x86_64 GNU/Linux
+
