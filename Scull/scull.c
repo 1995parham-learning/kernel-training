@@ -1,86 +1,69 @@
-1 /*
-  2  * main.c -- the bare scull char module
-  3  *
-  4  * Copyright (C) 2001 Alessandro Rubini and Jonathan Corbet
-  5  * Copyright (C) 2001 O'Reilly & Associates
-  6  *
-  7  * The source code in this file can be freely used, adapted,
-  8  * and redistributed in source or binary form, so long as an
-  9  * acknowledgment appears in derived source files.  The citation
- 10  * should list that the code comes from the book "Linux Device
- 11  * Drivers" by Alessandro Rubini and Jonathan Corbet, published
- 12  * by O'Reilly & Associates.   No warranty is attached;
- 13  * we cannot take responsibility for errors or fitness for use.
- 14  *
- 15  */
- 16 
- 17 #include <linux/module.h>
- 18 #include <linux/moduleparam.h>
- 19 #include <linux/init.h>
- 20 
- 21 #include <linux/kernel.h>       /* printk() */
- 22 #include <linux/slab.h>         /* kmalloc() */
- 23 #include <linux/fs.h>           /* everything... */
- 24 #include <linux/errno.h>        /* error codes */
- 25 #include <linux/types.h>        /* size_t */
- 26 #include <linux/proc_fs.h>
- 27 #include <linux/fcntl.h>        /* O_ACCMODE */
- 28 #include <linux/seq_file.h>
- 29 #include <linux/cdev.h>
- 30 
- 31 #include <asm/system.h>         /* cli(), *_flags */
- 32 #include <asm/uaccess.h>        /* copy_*_user */
- 33 
- 34 #include "scull.h"              /* local definitions */
- 35 
- 36 /*
- 37  * Our parameters which can be set at load time.
- 38  */
- 39 
- 40 int scull_major =   SCULL_MAJOR;
- 41 int scull_minor =   0;
- 42 int scull_nr_devs = SCULL_NR_DEVS;      /* number of bare scull devices */
- 43 int scull_quantum = SCULL_QUANTUM;
- 44 int scull_qset =    SCULL_QSET;
- 45 
- 46 module_param(scull_major, int, S_IRUGO);
- 47 module_param(scull_minor, int, S_IRUGO);
- 48 module_param(scull_nr_devs, int, S_IRUGO);
- 49 module_param(scull_quantum, int, S_IRUGO);
- 50 module_param(scull_qset, int, S_IRUGO);
- 51 
- 52 MODULE_AUTHOR("Alessandro Rubini, Jonathan Corbet");
- 53 MODULE_LICENSE("Dual BSD/GPL");
- 54 
- 55 struct scull_dev *scull_devices;        /* allocated in scull_init_module */
- 56 
- 57 
- 58 /*
- 59  * Empty out the scull device; must be called with the device
- 60  * semaphore held.
- 61  */
- 62 int scull_trim(struct scull_dev *dev)
- 63 {
- 64         struct scull_qset *next, *dptr;
- 65         int qset = dev->qset;   /* "dev" is not-null */
- 66         int i;
- 67 
- 68         for (dptr = dev->data; dptr; dptr = next) { /* all the list items */
- 69                 if (dptr->data) {
- 70                         for (i = 0; i < qset; i++)
- 71                                 kfree(dptr->data[i]);
- 72                         kfree(dptr->data);
- 73                         dptr->data = NULL;
- 74                 }
- 75                 next = dptr->next;
- 76                 kfree(dptr);
- 77         }
- 78         dev->size = 0;
- 79         dev->quantum = scull_quantum;
- 80         dev->qset = scull_qset;
- 81         dev->data = NULL;
- 82         return 0;
- 83 }
+#include <linux/module.h>
+#include <linux/moduleparam.h>
+#include <linux/init.h>
+ 
+#include <linux/kernel.h>       /* printk() */
+#include <linux/slab.h>         /* kmalloc() */
+#include <linux/fs.h>           /* everything... */
+#include <linux/errno.h>        /* error codes */
+#include <linux/types.h>        /* size_t */
+#include <linux/proc_fs.h>
+#include <linux/fcntl.h>        /* O_ACCMODE */
+#include <linux/seq_file.h>
+#include <linux/cdev.h>
+
+#include <asm/system.h>         /* cli(), *_flags */
+#include <asm/uaccess.h>        /* copy_*_user */
+ 
+#include "scull.h"              /* local definitions */ 
+
+/*
+* Our parameters which can be set at load time.
+*/
+ 
+int scull_major =   SCULL_MAJOR;
+int scull_minor =   0;
+int scull_nr_devs = SCULL_NR_DEVS;      /* number of bare scull devices */
+int scull_quantum = SCULL_QUANTUM;
+int scull_qset =    SCULL_QSET;
+ 
+module_param(scull_major, int, S_IRUGO);
+module_param(scull_minor, int, S_IRUGO);
+module_param(scull_nr_devs, int, S_IRUGO);
+module_param(scull_quantum, int, S_IRUGO);
+module_param(scull_qset, int, S_IRUGO);
+
+MODULE_AUTHOR("Parham Alvani");
+MODULE_LICENSE("GPL");
+
+struct scull_dev *scull_devices;        /* allocated in scull_init_module */
+ 
+ 
+/*
+* Empty out the scull device; must be called with the device
+* semaphore held.
+*/
+int scull_trim(struct scull_dev *dev){
+	struct scull_qset *next, *dptr;
+	int qset = dev->qset;   /* "dev" is not-null */
+	int i;
+
+	for(dptr = dev->data; dptr; dptr = next){ /* all the list items */
+		if(dptr->data){
+			for (i = 0; i < qset; i++)
+				kfree(dptr->data[i]);
+			kfree(dptr->data);
+			dptr->data = NULL;
+		}
+		next = dptr->next;
+ 		kfree(dptr);
+	}
+	dev->size = 0;
+	dev->quantum = scull_quantum;
+	dev->qset = scull_qset;
+	dev->data = NULL;
+	return 0;
+}
  84 #ifdef SCULL_DEBUG /* use proc only if debugging */
  85 /*
  86  * The proc filesystem: function to read and entry
@@ -544,30 +527,29 @@
 544         filp->f_pos = newpos;
 545         return newpos;
 546 }
-547 
-548 
-549 
-550 struct file_operations scull_fops = {
-551         .owner =    THIS_MODULE,
-552         .llseek =   scull_llseek,
-553         .read =     scull_read,
-554         .write =    scull_write,
-555         .ioctl =    scull_ioctl,
-556         .open =     scull_open,
-557         .release =  scull_release,
-558 };
-559 
-560 /*
-561  * Finally, the module stuff
-562  */
-563 
-564 /*
-565  * The cleanup function is used to handle initialization failures as well.
-566  * Thefore, it must be careful to work correctly even if some of the items
-567  * have not been initialized
-568  */
-569 void scull_cleanup_module(void)
-570 {
+ 
+ 
+ 
+struct file_operations scull_fops = {
+	.owner =    THIS_MODULE,
+	.llseek =   scull_llseek,
+	.read =     scull_read,
+	.write =    scull_write,
+	.ioctl =    scull_ioctl,
+	.open =     scull_open,
+	.release =  scull_release,
+};
+
+/*
+* Finally, the module stuff
+*/
+ 
+/*
+* The cleanup function is used to handle initialization failures as well.
+* Thefore, it must be careful to work correctly even if some of the items
+* have not been initialized
+*/
+void scull_cleanup_module(void){
 571         int i;
 572         dev_t devno = MKDEV(scull_major, scull_minor);
 573 
@@ -594,80 +576,74 @@
 594 }
 595 
 596 
-597 /*
-598  * Set up the char_dev structure for this device.
-599  */
-600 static void scull_setup_cdev(struct scull_dev *dev, int index)
-601 {
-602         int err, devno = MKDEV(scull_major, scull_minor + index);
-603     
-604         cdev_init(&dev->cdev, &scull_fops);
-605         dev->cdev.owner = THIS_MODULE;
-606         dev->cdev.ops = &scull_fops;
-607         err = cdev_add (&dev->cdev, devno, 1);
-608         /* Fail gracefully if need be */
-609         if (err)
-610                 printk(KERN_NOTICE "Error %d adding scull%d", err, index);
-611 }
-612 
-613 
-614 int scull_init_module(void)
-615 {
-616         int result, i;
-617         dev_t dev = 0;
-618 
-619 /*
-620  * Get a range of minor numbers to work with, asking for a dynamic
-621  * major unless directed otherwise at load time.
-622  */
-623         if (scull_major) {
-624                 dev = MKDEV(scull_major, scull_minor);
-625                 result = register_chrdev_region(dev, scull_nr_devs, "scull");
-626         } else {
-627                 result = alloc_chrdev_region(&dev, scull_minor, scull_nr_devs,
-628                                 "scull");
-629                 scull_major = MAJOR(dev);
-630         }
-631         if (result < 0) {
-632                 printk(KERN_WARNING "scull: can't get major %d\n", scull_major);
-633                 return result;
-634         }
-635 
-636         /* 
-637          * allocate the devices -- we can't have them static, as the number
-638          * can be specified at load time
-639          */
-640         scull_devices = kmalloc(scull_nr_devs * sizeof(struct scull_dev), GFP_KERNEL);
-641         if (!scull_devices) {
-642                 result = -ENOMEM;
-643                 goto fail;  /* Make this more graceful */
-644         }
-645         memset(scull_devices, 0, scull_nr_devs * sizeof(struct scull_dev));
-646 
-647         /* Initialize each device. */
-648         for (i = 0; i < scull_nr_devs; i++) {
-649                 scull_devices[i].quantum = scull_quantum;
-650                 scull_devices[i].qset = scull_qset;
-651                 init_MUTEX(&scull_devices[i].sem);
-652                 scull_setup_cdev(&scull_devices[i], i);
-653         }
-654 
-655         /* At this point call the init function for any friend device */
-656         dev = MKDEV(scull_major, scull_minor + scull_nr_devs);
-657         dev += scull_p_init(dev);
-658         dev += scull_access_init(dev);
-659 
-660 #ifdef SCULL_DEBUG /* only when debugging */
-661         scull_create_proc();
-662 #endif
-663 
-664         return 0; /* succeed */
-665 
-666   fail:
-667         scull_cleanup_module();
-668         return result;
-669 }
-670 
-671 module_init(scull_init_module);
-672 module_exit(scull_cleanup_module);
-673 
+/*
+* Set up the char_dev structure for this device.
+*/
+static void scull_setup_cdev(struct scull_dev *dev, int index){
+	int err, devno = MKDEV(scull_major, scull_minor + index);
+
+	cdev_init(&dev->cdev, &scull_fops);
+	dev->cdev.owner = THIS_MODULE;
+	dev->cdev.ops = &scull_fops;
+	err = cdev_add (&dev->cdev, devno, 1);
+	/* Fail gracefully if need be */
+	if (err)
+		printk(KERN_NOTICE "Error %d adding scull%d", err, index);
+}
+ 
+int scull_init_module(void){
+	int result, i;
+	dev_t dev = 0;
+	/*
+	* Get a range of minor numbers to work with, asking for a dynamic
+	* major unless directed otherwise at load time.
+	*/
+	if(scull_major){
+		dev = MKDEV(scull_major, scull_minor);
+		result = register_chrdev_region(dev, scull_nr_devs, "scull");
+	}else{
+		result = alloc_chrdev_region(&dev, scull_minor, scull_nr_devs, "scull");
+		scull_major = MAJOR(dev);
+	}
+	if(result < 0){
+		printk(KERN_WARNING "scull: can't get major %d\n", scull_major);
+		return result;
+	} 
+	
+	/* 
+	* allocate the devices -- we can't have them static, as the number
+	* can be specified at load time
+	*/
+	scull_devices = kmalloc(scull_nr_devs * sizeof(struct scull_dev), GFP_KERNEL);
+	if (!scull_devices) {
+		result = -ENOMEM;
+		goto fail;  /* Make this more graceful */
+	}
+	memset(scull_devices, 0, scull_nr_devs * sizeof(struct scull_dev));
+
+	/* Initialize each device. */
+	for (i = 0; i < scull_nr_devs; i++) {
+		scull_devices[i].quantum = scull_quantum;
+		scull_devices[i].qset = scull_qset;
+		init_MUTEX(&scull_devices[i].sem);
+		scull_setup_cdev(&scull_devices[i], i);
+	}
+ 
+	/* At this point call the init function for any friend device */
+	dev = MKDEV(scull_major, scull_minor + scull_nr_devs);
+	dev += scull_p_init(dev);
+	dev += scull_access_init(dev);
+
+	#ifdef SCULL_DEBUG /* only when debugging */
+		scull_create_proc();
+	#endif
+
+	return 0; /* succeed */
+
+	fail:
+		scull_cleanup_module();
+		return result;
+}
+ 
+module_init(scull_init_module);
+module_exit(scull_cleanup_module); 
