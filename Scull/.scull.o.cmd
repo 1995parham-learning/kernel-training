@@ -1,0 +1,1 @@
+cmd_/home/parham/Documents/Git/Kernel-Training/Scull/scull.o := ld -m elf_x86_64   -r -o /home/parham/Documents/Git/Kernel-Training/Scull/scull.o /home/parham/Documents/Git/Kernel-Training/Scull/main.o 
