@@ -498,7 +498,7 @@ struct file_operations scull_fops = {
  * Thefore, it must be careful to work correctly even if some of the items
  * have not been initialized
  */
-void scull_cleanup_module(void) {
+void __exit scull_cleanup_module(void) {
    	int i;
    	dev_t devno = MKDEV(scull_major, scull_minor);
    
@@ -535,7 +535,7 @@ static void scull_setup_cdev(struct scull_dev *dev, int index){
       		printk(KERN_NOTICE "Error %d adding scull%d", err, index);
 }
 
-int scull_init_module(void){
+int __init scull_init_module(void){
 	int result, i;
    	dev_t dev = 0;
    
@@ -550,7 +550,7 @@ int scull_init_module(void){
       		result = alloc_chrdev_region(&dev, scull_minor, scull_nr_devs, "scull");
       		scull_major = MAJOR(dev);
    	}
-   	if (result < 0) {
+   	if (result < 0){
       		printk(KERN_WARNING "scull: can't get major %d\n", scull_major);
       		return result;
    	}
@@ -559,7 +559,7 @@ int scull_init_module(void){
    	 * allocate the devices -- we can't have them static, as the number
    	 * can be specified at load time
    	 */
-   	scull_devices = kmalloc(scull_nr_devs*sizeof(struct scull_dev), GFP_KERNEL);
+   	scull_devices = kmalloc(scull_nr_devs * sizeof(struct scull_dev), GFP_KERNEL);
    	if(!scull_devices){
    	   result = -ENOMEM;
    	   goto fail;  /* Make this more graceful */
@@ -567,7 +567,7 @@ int scull_init_module(void){
    	memset(scull_devices, 0, scull_nr_devs * sizeof(struct scull_dev));
    
    	/* Initialize each device. */
-   	for (i = 0; i < scull_nr_devs; i++) {
+   	for(i = 0; i < scull_nr_devs; i++){
       		scull_devices[i].quantum = scull_quantum;
       		scull_devices[i].qset = scull_qset;
       		sema_init(&scull_devices[i].sem, 1);
