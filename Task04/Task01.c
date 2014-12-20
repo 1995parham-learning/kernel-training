@@ -8,13 +8,15 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Parham Alvani");
 MODULE_DESCRIPTION("This module does nothing .....");
 
-static int __init hello_init(void){
+static int __init hello_init(void)
+{
 	printk(KERN_INFO "Hello, i am loading\n");
 	printk(KERN_DEBUG "Hello World\n");
 	return 0;
 }
 
-static void __exit hello_exit(void){
+static void __exit hello_exit(void)
+{
 	printk(KERN_INFO "Goodbye, i am unloading\n");
 }
 
