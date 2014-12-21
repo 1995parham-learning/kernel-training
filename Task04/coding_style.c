@@ -2,6 +2,7 @@
 #include <linux/kernel.h>
 #include <linux/delay.h>
 #include <linux/slab.h>
+#include <linux/printk.h>
 
 int do_work(int *my_int, int retval)
 {
@@ -13,8 +14,10 @@ int do_work(int *my_int, int retval)
 		udelay(10);
 
 	if (y < 10)
-		/* That was a long sleep, tell userspace about it */
-		printk(KERN_INFO "We slept a long time!");
+		/*
+		 * That was a long sleep, tell userspace about it
+		*/
+		pr_info("We slept a long time!");
 
 	z = x * y;
 	return z;
