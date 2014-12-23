@@ -1,0 +1,1 @@
+SUBSYSTEM=="input", SUBSYSTEMS=="usb", RUN+="/home/parham/bin/Task01.sh"
