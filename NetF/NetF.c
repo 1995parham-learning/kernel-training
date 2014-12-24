@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 21-12-2014
  *
- * [] Last Modified : Wed 24 Dec 2014 08:51:40 PM IRST
+ * [] Last Modified : Wed 24 Dec 2014 10:59:52 PM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -19,9 +19,11 @@
 */
 
 #include <linux/module.h>
+#include <linux/types.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 #include <linux/netdevice.h>
+#include <linux/skbuff.h>
 #include <linux/kernel.h>
 #include <linux/printk.h>
 
@@ -37,13 +39,13 @@ unsigned int hook_func(unsigned int hooknum,
 		const struct net_device *out,
 		int (*okfn)(struct sk_buff *))
 {
-	pr_info("%s", out->name);
+	pr_info("[NetF] %s\n", out->name);
 	return NF_ACCEPT;
 }
 
-static int __init hello_init(void)
+static int __init NetF_init(void)
 {
-	pr_info("Setting nf_hook_ops parameters\n");
+	pr_info("[Netf] Setting nf_hook_ops parameters\n");
 
 	/* Fill in our hook structure */
 	nfho.hook = hook_func;
@@ -51,15 +53,15 @@ static int __init hello_init(void)
 	nfho.pf = PF_INET;
 	nf_register_hook(&nfho);
 
-	pr_info("Our nf_hook_ops registered\n");
+	pr_info("[NetF] Our nf_hook_ops registered\n");
 	return 0;
 }
 
-static void __exit hello_exit(void)
+static void __exit NetF_exit(void)
 {
 	nf_unregister_hook(&nfho);
-	pr_info("Our nf_hook_ops unregistered\n");
+	pr_info("[NetF] Our nf_hook_ops unregistered\n");
 }
 
-module_init(hello_init);
-module_exit(hello_exit);
+module_init(NetF_init);
+module_exit(NetF_exit);
