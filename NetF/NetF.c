@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 21-12-2014
  *
- * [] Last Modified : Wed 24 Dec 2014 10:59:52 PM IRST
+ * [] Last Modified : Thu 25 Dec 2014 02:24:58 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -33,8 +33,8 @@ MODULE_DESCRIPTION("This module is netfilter patch");
 
 static struct nf_hook_ops nfho;
 
-unsigned int hook_func(unsigned int hooknum,
-		struct sk_buff **skb,
+unsigned int hook_func(const struct nf_hook_ops *ops,
+		struct sk_buff *skb,
 		const struct net_device *in,
 		const struct net_device *out,
 		int (*okfn)(struct sk_buff *))
@@ -50,6 +50,7 @@ static int __init NetF_init(void)
 	/* Fill in our hook structure */
 	nfho.hook = hook_func;
 	nfho.hooknum = 3;
+	nfho.owner = THIS_MODULE;
 	nfho.pf = PF_INET;
 	nf_register_hook(&nfho);
 
