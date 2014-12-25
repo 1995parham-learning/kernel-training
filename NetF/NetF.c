@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 21-12-2014
  *
- * [] Last Modified : Thu 25 Dec 2014 08:57:55 AM IRST
+ * [] Last Modified : Thu 25 Dec 2014 06:42:02 PM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -17,6 +17,7 @@
  * We love you Dr.Bakshi
 */
 
+#include <linux/string.h>
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/netfilter.h>
@@ -40,8 +41,15 @@ unsigned int filter(const struct nf_hook_ops *ops,
 		const struct net_device *out,
 		int (*okfn)(struct sk_buff *))
 {
-	pr_info("[NetF] %s\n", out->name);
-	pr_info("[NetF] Lucky number: %d\n", container_of(ops, struct netF, nfho)->lucky_number);
+	if (!strcmp(out->name, "lo")) {
+		pr_info("[NetF] %s\n", out->name);
+		pr_info("[NetF] Packet Len is: %u\n", skb->len);
+		pr_info("[NetF] Packet Data Len is: %u\n", skb->data_len);
+		pr_info("[NetF] Packet MAC Data Len is: %hu\n", skb->mac_len);
+		pr_info("[NetF] Lucky number: %d\n",
+				container_of(ops, struct
+					netF, nfho)->lucky_number);
+	}
 	return NF_ACCEPT;
 }
 
