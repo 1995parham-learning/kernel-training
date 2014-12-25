@@ -5,17 +5,16 @@
  *
  * [] Creation Date : 21-12-2014
  *
- * [] Last Modified : Thu 25 Dec 2014 02:24:58 AM IRST
+ * [] Last Modified : Thu 25 Dec 2014 02:31:54 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
 */
+
 /*
- * NF_IP_PRE_ROUTING = 0
- * NF_IP_LOCAL_IN = 1
- * NF_IP_FORWARD = 2
- * NF_IP_LOCAL_OUT = 3
- * WE LOVE U Dr.Bakshi !!!
+ * This task is done just for FUN
+ * and like always
+ * We love you Dr.Bakshi
 */
 
 #include <linux/module.h>
