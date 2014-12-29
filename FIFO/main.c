@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Mon 29 Dec 2014 05:42:10 AM IRST
+ * [] Last Modified : Mon 29 Dec 2014 06:31:14 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -36,6 +36,23 @@ MODULE_LICENSE("GPL");
 struct fifo_dev *main_device;
 
 /*
+ * Empty out fifo device.
+*/
+int fifo_trim(struct fifo_dev *dev)
+{
+	struct fifo_node *next, *ptr;
+
+	for(ptr = dev->date; ptr, ptr = next) {
+		next = ptr->next;
+		kfree(ptr);
+	}
+	dev->fset = 0;
+	dev->data = NULL;
+	
+	return 0;
+}
+
+/*
  * Open and close
  */
 int fifo_open(struct inode *inode, struct file *filp)
@@ -52,7 +69,7 @@ int fifo_open(struct inode *inode, struct file *filp)
 	 * manually.
 	*/
 	if ((filp->f_flags & O_ACCMODE) == O_WRONLY)
-		;
+		fifo_trim();
 
 	return 0;
 }
@@ -67,19 +84,18 @@ int fifo_release(struct inode *inode, struct file *flip)
  */
 ssize_t fifo_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
+	struct fifo_dev *dev = filp->private_data;
+	struct fifo_node *ptr = dev->data;
+
+
 	ssize_t retval = 0;
 
-	if( *f_pos != 0 )
+	if (*f_pos != 0)
 		return -EINVAL;
-	if(tail - head < count)
-		count = tail - head;
-
 	if (copy_to_user(buf, queue + head, count)){
 		retval = -EFAULT;
 		goto out;
 	}
-	head += count;
-	retval = count;
 out:
 		return retval;
 }
