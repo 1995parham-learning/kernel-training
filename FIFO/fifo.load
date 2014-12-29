@@ -1,0 +1,14 @@
+#!/bin/sh
+module="fifo"
+device="fifo"
+mode="666"
+
+insmod ./$module.ko || exit 1
+
+major=$(awk "\$2==\"$module\" {print \$1}" /proc/modules)
+
+# Remove stale nodes and replace them, then give gid and perms
+# Usually the script is shorter
+echo $major
+rm -f /dev/${device}
+mknod --mode=${mode} /dev/${device} c $major 0
