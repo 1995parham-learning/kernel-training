@@ -1,0 +1,11 @@
+[ 3039.010722] usb 1-3: New USB device found, idVendor=1bcf, idProduct=0005
+[ 3039.010727] usb 1-3: New USB device strings: Mfr=0, Product=2, SerialNumber=0
+[ 3039.010730] usb 1-3: Product: USB Optical Mouse
+[ 3039.010942] usb 1-3: ep 0x81 - rounding interval to 64 microframes, ep desc says 80 microframes
+[ 3039.016722] input: USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.0/0003:1BCF:0005.0003/input/input25
+[ 3039.017165] hid-generic 0003:1BCF:0005.0003: input,hidraw2: USB HID v1.10 Mouse [USB Optical Mouse] on usb-0000:00:14.0-3/input0
+[ 3039.062274] Hello, i am loading
+[ 3039.062278] Hello World
+[ 3050.923726] usb 1-3: USB disconnect, device number 3
+[ 3050.927046] Goodbye, i am unloading
+
