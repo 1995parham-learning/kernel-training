@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Mon 29 Dec 2014 06:31:14 AM IRST
+ * [] Last Modified : Sat 03 Jan 2015 09:02:21 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -42,7 +42,7 @@ int fifo_trim(struct fifo_dev *dev)
 {
 	struct fifo_node *next, *ptr;
 
-	for(ptr = dev->date; ptr, ptr = next) {
+	for(ptr = dev->data; ptr, ptr = next) {
 		next = ptr->next;
 		kfree(ptr);
 	}
@@ -86,12 +86,14 @@ ssize_t fifo_read(struct file *filp, char __user *buf, size_t count, loff_t *f_p
 {
 	struct fifo_dev *dev = filp->private_data;
 	struct fifo_node *ptr = dev->data;
+	struct fifo_node *next = NULL;
 
 
 	ssize_t retval = 0;
 
 	if (*f_pos != 0)
-		return -EINVAL;
+	return -EINVAL;
+	
 	if (copy_to_user(buf, queue + head, count)){
 		retval = -EFAULT;
 		goto out;
