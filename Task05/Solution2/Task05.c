@@ -22,13 +22,13 @@ MODULE_DEVICE_TABLE(usb, hello_id_table);
 static int hello_probe(struct usb_interface *interface,
 		    const struct usb_device_id *id)
 {
-	pr_debug("HelloModule: USB keyboard probe function called\n");
+	pr_info("HelloModule: USB keyboard probe function called\n");
 	return 0;
 }
 
 static void hello_disconnect(struct usb_interface *interface)
 {
-	pr_debug("HelloModule: USB keyboard disconnect function called\n");
+	pr_info("HelloModule: USB keyboard disconnect function called\n");
 }
 
 static struct usb_driver hello_driver = {
@@ -43,11 +43,11 @@ static int __init hello_init(void)
 	int retval = 0;
 
 	pr_info("HelloModule: i am loading\n");
-	pr_debug("HelloModule: Hello World\n");
+	pr_info("HelloModule: Hello World\n");
 
 	retval = usb_register(&hello_driver);
 	if (retval) {
-		pr_debug("HelloModule: usb_register failed. Error number %d",
+		pr_info("HelloModule: usb_register failed. Error number %d",
 				retval);
 		return retval;
 	}
@@ -58,6 +58,7 @@ static int __init hello_init(void)
 static void __exit hello_exit(void)
 {
 	pr_info("Goodbye, i am unloading\n");
+	usb_deregister(&hello_driver);
 }
 
 module_init(hello_init);
