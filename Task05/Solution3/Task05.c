@@ -13,7 +13,7 @@ MODULE_DESCRIPTION("This module does nothing .....\n");
 static struct usb_device_id hello_id_table[] = {
 		{USB_INTERFACE_INFO(USB_INTERFACE_CLASS_HID,
 				USB_INTERFACE_SUBCLASS_BOOT,
-				USB_INTERFACE_PROTOCOL_MOUSE)},
+				USB_INTERFACE_PROTOCOL_KEYBOARD)},
 		{} /* Terminating entry */
 };
 
