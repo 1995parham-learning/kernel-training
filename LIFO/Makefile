@@ -1,7 +1,7 @@
 ifneq ($(KERNELRELEASE),)
 	# call from kernel build system
-	fifo-objs := main.o
-	obj-m   := fifo.o
+	lifo-objs := main.o
+	obj-m   := lifo.o
 else
    KERNELDIR ?= /lib/modules/$(shell uname -r)/build
    PWD       := $(shell pwd)

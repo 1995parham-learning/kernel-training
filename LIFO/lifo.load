@@ -1,11 +1,11 @@
 #!/bin/sh
-module="fifo"
-device="fifo"
-mode="666"
+module="lifo"
+device="lifo"
+mode="0666"
 
 insmod ./$module.ko || exit 1
 
-major=$(awk "\$2==\"$module\" {print \$1}" /proc/modules)
+major=$(awk "{if (\$2 == \"$module\") {{print \$1}{ exit }}}" /proc/devices)
 
 # Remove stale nodes and replace them, then give gid and perms
 # Usually the script is shorter

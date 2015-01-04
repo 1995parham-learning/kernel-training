@@ -1,6 +1,6 @@
 #!/bin/sh
-module="fifo"
-device="fifo"
+module="lifo"
+device="lifo"
  
 # invoke rmmod with all arguments we got
 /sbin/rmmod $module || exit 1
