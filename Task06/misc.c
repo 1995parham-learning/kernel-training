@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Mon 05 Jan 2015 09:05:27 AM IRST
+ * [] Last Modified : Mon 05 Jan 2015 10:39:07 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -14,6 +14,7 @@
 #include <linux/init.h>
 
 #include <linux/kernel.h>       /* printk() */
+#include <linux/string.h>	/* strlen() */
 #include <linux/fs.h>           /* everything... */
 #include <linux/errno.h>        /* error codes */
 #include <linux/types.h>        /* size_t */
@@ -22,7 +23,7 @@
 
 /*
  * Parameters which can be set at load time.
- */
+*/
 int misc_major = 0;
 int misc_minor = 0;
 
@@ -53,19 +54,18 @@ ssize_t misc_read(struct file *filp, char __user *buf, size_t count,
 		loff_t *f_pos)
 {
 	int retval = 0;
-	char numstr[10];
-	int numlen = 0;
+	const char idstr[] = "8d7990499d47\n";
+	const int idlen = strlen(idstr);
 
 	if (*f_pos != 0)
-		return -EINVAL;
+		return 0;
 
-	numlen = sprintf(numstr, "%d\n", misc_major);
-	if (copy_to_user(buf, numstr, numlen)) {
+	if (copy_to_user(buf, idstr, idlen)) {
 		retval = -EFAULT;
 		goto out;
 	}
-	retval = numlen;
-	*f_pos += numlen;
+	retval = idlen;
+	*f_pos += idlen;
 out:
 	return retval;
 }
@@ -74,12 +74,20 @@ ssize_t misc_write(struct file *filp, const char __user *buf, size_t count,
 		loff_t *f_pos)
 {
 	int retval = 0;
+	const char idstr[] = "8d7990499d47";
+	const int idlen = strlen(idstr);
+	char input_id[idlen + 1];
 
-	pr_info("MISC: start writing ...\n");
-	/*if (copy_from_user(&new->value, buf + i, 1)) {
+	if (copy_from_user(input_id, buf, idlen)) {
 		retval = -EFAULT;
 		goto out;
-	}*/
+	}
+	input_id[idlen] = 0;
+
+	if(strcmp(idstr, input_id))
+		retval = -EINVAL;
+	else
+		retval = count;
 out:
 	return retval;
 }

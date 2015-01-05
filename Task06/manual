@@ -1,4 +1,4 @@
-# kstrtol function:
+** kstrtol function:
 /*
  * kstrtol - convert a string to a long
  * @s: The start of the string. The string must be null-terminated, and may also
