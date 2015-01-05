@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Mon 05 Jan 2015 07:36:56 AM IRST
+ * [] Last Modified : Mon 05 Jan 2015 09:05:27 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -17,7 +17,6 @@
 #include <linux/fs.h>           /* everything... */
 #include <linux/errno.h>        /* error codes */
 #include <linux/types.h>        /* size_t */
-#include <linux/fcntl.h>        /* O_ACCMODE */
 #include <linux/cdev.h>
 #include <asm/uaccess.h>        /* copy_*_user */
 
@@ -56,7 +55,7 @@ ssize_t misc_read(struct file *filp, char __user *buf, size_t count,
 	int retval = 0;
 	char numstr[10];
 	int numlen = 0;
-	
+
 	if (*f_pos != 0)
 		return -EINVAL;
 
@@ -66,6 +65,7 @@ ssize_t misc_read(struct file *filp, char __user *buf, size_t count,
 		goto out;
 	}
 	retval = numlen;
+	*f_pos += numlen;
 out:
 	return retval;
 }
@@ -139,7 +139,8 @@ int __init misc_init_module(void)
 		return result;
 	}
 
-	pr_info("MISC: major: %d , minor %d allocated\n", misc_major, misc_minor);
+	pr_info("MISC: major: %d , minor %d allocated\n",
+			misc_major, misc_minor);
 
 	misc_setup_cdev();
 
