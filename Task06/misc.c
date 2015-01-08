@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Thu 08 Jan 2015 07:46:23 AM IRST
+ * [] Last Modified : Thu 08 Jan 2015 10:44:27 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -38,8 +38,13 @@ MODULE_LICENSE("GPL");
 ssize_t misc_read(struct file *filp, char __user *buf, size_t count,
 		loff_t *f_pos)
 {
-	copy_to_user(buf, "8d7990499d47\n", strlen("8d7990499d47\n"));
-	return (*f_pos) ? 0 : (*f_pos += strlen("8d7990499d47\n"));
+	if (count >= strlen("8d7990499d47\n"))
+		return copy_to_user(buf, "8d7990499d47\n",
+				strlen("8d7990499d47\n")) ? -EFAULT :
+			(*f_pos) ? 0 : (*f_pos += strlen("8d7990499d47\n"));
+	else
+		return -EFAULT;
+
 }
 
 ssize_t misc_write(struct file *filp, const char __user *buf, size_t count,
