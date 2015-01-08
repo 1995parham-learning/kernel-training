@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Mon 05 Jan 2015 10:39:07 AM IRST
+ * [] Last Modified : Thu 08 Jan 2015 07:46:23 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -33,41 +33,13 @@ MODULE_AUTHOR("Parham Alvani");
 MODULE_LICENSE("GPL");
 
 /*
- * Open and close
-*/
-int misc_open(struct inode *inode, struct file *filp)
-{
-	pr_info("MISC: device opened\n");
-
-	return 0;
-}
-
-int misc_release(struct inode *inode, struct file *flip)
-{
-	return 0;
-}
-
-/*
  * Data management: read and write
 */
 ssize_t misc_read(struct file *filp, char __user *buf, size_t count,
 		loff_t *f_pos)
 {
-	int retval = 0;
-	const char idstr[] = "8d7990499d47\n";
-	const int idlen = strlen(idstr);
-
-	if (*f_pos != 0)
-		return 0;
-
-	if (copy_to_user(buf, idstr, idlen)) {
-		retval = -EFAULT;
-		goto out;
-	}
-	retval = idlen;
-	*f_pos += idlen;
-out:
-	return retval;
+	copy_to_user(buf, "8d7990499d47\n", strlen("8d7990499d47\n"));
+	return (*f_pos) ? 0 : (*f_pos += strlen("8d7990499d47\n"));
 }
 
 ssize_t misc_write(struct file *filp, const char __user *buf, size_t count,
@@ -84,7 +56,7 @@ ssize_t misc_write(struct file *filp, const char __user *buf, size_t count,
 	}
 	input_id[idlen] = 0;
 
-	if(strcmp(idstr, input_id))
+	if (strcmp(idstr, input_id))
 		retval = -EINVAL;
 	else
 		retval = count;
@@ -96,8 +68,6 @@ const struct file_operations misc_fops = {
 	.owner =	THIS_MODULE,
 	.read =		misc_read,
 	.write =	misc_write,
-	.open =		misc_open,
-	.release =	misc_release
 };
 
 /*
