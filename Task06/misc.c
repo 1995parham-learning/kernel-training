@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Thu 08 Jan 2015 07:31:57 PM IRST
+ * [] Last Modified : Fri 09 Jan 2015 05:57:08 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -26,8 +26,6 @@
 */
 int misc_major = 0;
 int misc_minor = 0;
-
-struct cdev dev;
 
 MODULE_AUTHOR("Parham Alvani");
 MODULE_LICENSE("GPL");
@@ -50,18 +48,14 @@ ssize_t misc_write(struct file *filp, const char __user *buf, size_t count,
 	const int idlen = strlen(idstr);
 	char input_id[idlen + 1];
 
-	if (copy_from_user(input_id, buf, idlen)) {
-		retval = -EFAULT;
-		goto out;
-	}
+	retval = simple_write_to_buffer(input_id, idlen + 1,
+			f_pos, buf, count);
 	input_id[idlen] = 0;
 
 	if (strcmp(idstr, input_id))
-		retval = -EINVAL;
+		return -EINVAL;
 	else
-		retval = count;
-out:
-	return retval;
+		return retval;
 }
 
 const struct file_operations misc_fops = {
@@ -74,21 +68,6 @@ const struct file_operations misc_fops = {
  * Finally, the module stuff
 */
 
-void misc_setup_cdev(void)
-{
-	int err;
-	dev_t devno = MKDEV(misc_major, misc_minor);
-
-	cdev_init(&dev, &misc_fops);
-	dev.owner = THIS_MODULE;
-	dev.ops = &misc_fops;
-	err = cdev_add(&dev, devno, 1);
-	if (err)
-		pr_warn("MISC: error %d adding lifo", err);
-	else
-		pr_info("MISC: cdev registeration completed");
-}
-
 /*
  * The cleanup function is used to handle initialization failures as well.
  * Thefore, it must be careful to work correctly even if some of the items
@@ -98,29 +77,21 @@ void __exit misc_cleanup_module(void)
 {
 	dev_t devno = MKDEV(misc_major, misc_minor);
 
-	cdev_del(&dev);
-
 	/* cleanup_module is never called if registering failed */
 	unregister_chrdev_region(devno, 1);
 }
 
 int __init misc_init_module(void)
 {
-	int result;
-	dev_t devno = 0;
-
-	result = alloc_chrdev_region(&devno, misc_minor, 1, "misc");
-	misc_major = MAJOR(devno);
-
-	if (result < 0) {
+	misc_major = __register_chrdev(misc_major, misc_minor,
+			1, "misc", &misc_fops);
+	if (misc_major < 0) {
 		pr_warn("MISC: can't get major %d\n", misc_major);
-		return result;
+		return misc_major;
 	}
 
 	pr_info("MISC: major: %d , minor %d allocated\n",
 			misc_major, misc_minor);
-
-	misc_setup_cdev();
 
 	return 0;
 }
