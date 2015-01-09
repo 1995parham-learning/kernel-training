@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Fri 09 Jan 2015 05:57:08 AM IRST
+ * [] Last Modified : Fri 09 Jan 2015 06:14:34 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -18,12 +18,7 @@
 #include <linux/fs.h>           /* everything... */
 #include <linux/errno.h>        /* error codes */
 #include <linux/types.h>        /* size_t */
-#include <linux/cdev.h>
-#include <asm/uaccess.h>        /* copy_*_user */
 
-/*
- * Parameters which can be set at load time.
-*/
 int misc_major = 0;
 int misc_minor = 0;
 
@@ -48,14 +43,18 @@ ssize_t misc_write(struct file *filp, const char __user *buf, size_t count,
 	const int idlen = strlen(idstr);
 	char input_id[idlen + 1];
 
+	*f_pos = 0;
 	retval = simple_write_to_buffer(input_id, idlen + 1,
 			f_pos, buf, count);
-	input_id[idlen] = 0;
+	if (retval < 0)
+		return retval;
+
+	input_id[retval] = 0;
 
 	if (strcmp(idstr, input_id))
 		return -EINVAL;
-	else
-		return retval;
+
+	return retval;
 }
 
 const struct file_operations misc_fops = {
@@ -68,11 +67,6 @@ const struct file_operations misc_fops = {
  * Finally, the module stuff
 */
 
-/*
- * The cleanup function is used to handle initialization failures as well.
- * Thefore, it must be careful to work correctly even if some of the items
- * have not been initialized
-*/
 void __exit misc_cleanup_module(void)
 {
 	dev_t devno = MKDEV(misc_major, misc_minor);
