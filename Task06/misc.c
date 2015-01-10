@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Fri 09 Jan 2015 06:14:34 AM IRST
+ * [] Last Modified : Sat 10 Jan 2015 06:28:56 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -20,7 +20,6 @@
 #include <linux/types.h>        /* size_t */
 
 int misc_major = 0;
-int misc_minor = 0;
 
 MODULE_AUTHOR("Parham Alvani");
 MODULE_LICENSE("GPL");
@@ -69,23 +68,19 @@ const struct file_operations misc_fops = {
 
 void __exit misc_cleanup_module(void)
 {
-	dev_t devno = MKDEV(misc_major, misc_minor);
-
 	/* cleanup_module is never called if registering failed */
-	unregister_chrdev_region(devno, 1);
+	unregister_chrdev(misc_major, "misc");
 }
 
 int __init misc_init_module(void)
 {
-	misc_major = __register_chrdev(misc_major, misc_minor,
-			1, "misc", &misc_fops);
+	misc_major = register_chrdev(misc_major, "misc", &misc_fops);
 	if (misc_major < 0) {
 		pr_warn("MISC: can't get major %d\n", misc_major);
 		return misc_major;
 	}
 
-	pr_info("MISC: major: %d , minor %d allocated\n",
-			misc_major, misc_minor);
+	pr_info("MISC: major: %d allocated\n", misc_major);
 
 	return 0;
 }
