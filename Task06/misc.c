@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Sun 11 Jan 2015 11:17:54 AM IRST
+ * [] Last Modified : Sun 11 Jan 2015 11:22:54 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -19,8 +19,6 @@
 #include <linux/miscdevice.h>	/* misc things.. */
 #include <linux/errno.h>        /* error codes */
 #include <linux/types.h>        /* size_t */
-
-int misc_major = 0;
 
 MODULE_AUTHOR("Parham Alvani");
 MODULE_LICENSE("GPL");
