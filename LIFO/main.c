@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Sun 04 Jan 2015 08:04:38 AM IRST
+ * [] Last Modified : Sun 11 Jan 2015 11:19:24 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -89,6 +89,7 @@ ssize_t lifo_read(struct file *filp, char __user *buf, size_t count,
 
 	ssize_t retval = 0;
 	int i = 0;
+
 	if (*f_pos != 0)
 		return -EINVAL;
 	if (dev->fset < count)
@@ -98,7 +99,7 @@ ssize_t lifo_read(struct file *filp, char __user *buf, size_t count,
 			retval = -EFAULT;
 			goto out;
 		}
-		
+
 		retval++;
 		dev->fset--;
 		next = ptr->next;
@@ -211,7 +212,8 @@ int __init lifo_init_module(void)
 		return result;
 	}
 
-	pr_info("KIFO: major: %d , minor %d allocated\n", lifo_major, lifo_minor);
+	pr_info("KIFO: major: %d , minor %d allocated\n",
+			lifo_major, lifo_minor);
 
 	main_device = kmalloc(sizeof(struct lifo_dev), GFP_KERNEL);
 	if (!main_device) {

@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Sat 10 Jan 2015 06:28:56 AM IRST
+ * [] Last Modified : Sun 11 Jan 2015 11:17:54 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -16,6 +16,7 @@
 #include <linux/kernel.h>       /* printk() */
 #include <linux/string.h>	/* strlen() */
 #include <linux/fs.h>           /* everything... */
+#include <linux/miscdevice.h>	/* misc things.. */
 #include <linux/errno.h>        /* error codes */
 #include <linux/types.h>        /* size_t */
 
@@ -62,27 +63,24 @@ const struct file_operations misc_fops = {
 	.write =	misc_write,
 };
 
+struct miscdevice misc_misc = {
+	.minor = MISC_DYNAMIC_MINOR,
+	.fops = &misc_fops,
+	.nodename = "eudyptula",
+};
+
 /*
  * Finally, the module stuff
 */
 
 void __exit misc_cleanup_module(void)
 {
-	/* cleanup_module is never called if registering failed */
-	unregister_chrdev(misc_major, "misc");
+	misc_deregister(&misc_misc);
 }
 
 int __init misc_init_module(void)
 {
-	misc_major = register_chrdev(misc_major, "misc", &misc_fops);
-	if (misc_major < 0) {
-		pr_warn("MISC: can't get major %d\n", misc_major);
-		return misc_major;
-	}
-
-	pr_info("MISC: major: %d allocated\n", misc_major);
-
-	return 0;
+	return misc_register(&misc_misc);
 }
 
 module_init(misc_init_module);
