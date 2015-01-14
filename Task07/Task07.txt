@@ -1,9 +1,3 @@
-From little@eudyptula-challenge.org Mon Jan 12 17:39:50 2015
-Date: Mon, 12 Jan 2015 14:10:52 +0000
-From: Little Penguin <little@eudyptula-challenge.org>
-To: parham.alvani@gmail.com
-Subject: [8d7990499d47] Task 07 of the Eudyptula Challenge
-
 This is Task 07 of the Eudyptula Challenge
 ------------------------------------------
 
