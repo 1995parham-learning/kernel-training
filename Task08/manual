@@ -1,3 +1,4 @@
+DEBUGFS:
 Copyright 2009 Jonathan Corbet <corbet@lwn.net>
 
 Debugfs exists as a simple way for kernel developers to make information
@@ -189,3 +190,6 @@ removed.
 
 Notes:
 	[1] http://lwn.net/Articles/309298/
+============================================================================
+JIFFIES CLOCK:
+

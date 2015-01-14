@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Wed 14 Jan 2015 10:24:37 PM IRST
+ * [] Last Modified : Wed 14 Jan 2015 10:29:01 PM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -84,7 +84,7 @@ int __init task08_init_module(void)
 		return -ENODEV;
 	/* Create id file */
 	id = debugfs_create_file("id", 0666, root, NULL, &task08_fops);
-	if (!root)
+	if (!id)
 		goto sub_error;
 
 	return 0;

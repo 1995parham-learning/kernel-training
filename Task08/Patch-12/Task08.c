@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Wed 14 Jan 2015 10:24:44 PM IRST
+ * [] Last Modified : Wed 14 Jan 2015 10:48:23 PM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -17,6 +17,7 @@
 #include <linux/string.h>	/* strlen() */
 #include <linux/fs.h>           /* everything... */
 #include <linux/debugfs.h>	/* debugfs things.. */
+#include <linux/jiffies.h>	/* jiffies timer things.. */
 #include <linux/errno.h>        /* error codes */
 #include <linux/types.h>        /* size_t */
 
@@ -75,6 +76,7 @@ void __exit task08_cleanup_module(void)
 int __init task08_init_module(void)
 {
 	struct dentry *id = NULL;
+	struct dentry *jiffies = NULL;
 
 	/* Create root directory */
 	root = debugfs_create_dir("eudyptula", NULL);
@@ -84,8 +86,13 @@ int __init task08_init_module(void)
 		return -ENODEV;
 	/* Create id file */
 	id = debugfs_create_file("id", 0666, root, NULL, &task08_fops);
-	if (!root)
+	if (!id)
 		goto sub_error;
+	/* Create jiffies file */
+	jiffies = debugfs_create_file("jiffies", 0666, root, NULL, &task08_fops);
+	if (!jiffies)
+		goto sub_error;
+
 
 	return 0;
 
