@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Thu 15 Jan 2015 07:37:30 AM IRST
+ * [] Last Modified : Thu 15 Jan 2015 08:11:12 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -71,6 +71,7 @@ ssize_t task08_read_jiffies(struct file *filp, char __user *buf, size_t count,
 		loff_t *f_pos)
 {
 	char timestr[30];
+
 	sprintf(timestr, "%lld\n", get_jiffies_64());
 	return simple_read_from_buffer(buf, count, f_pos,
 			timestr, strlen(timestr));
@@ -106,7 +107,8 @@ int __init task08_init_module(void)
 	if (!id)
 		goto sub_error;
 	/* Create jiffies file */
-	jiffies = debugfs_create_file("jiffies", 0444, root, NULL, &task08_fops_jiffies);
+	jiffies = debugfs_create_file("jiffies",
+			0444, root, NULL, &task08_fops_jiffies);
 	if (!jiffies)
 		goto sub_error;
 
