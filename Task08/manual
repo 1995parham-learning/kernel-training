@@ -151,12 +151,12 @@ byte offsets over a base for the register block.
 
 There are a couple of other directory-oriented helper functions:
 
-    struct dentry *debugfs_rename(struct dentry *old_dir, 
+    struct dentry *debugfs_rename(struct dentry *old_dir,
     				  struct dentry *old_dentry,
-		                  struct dentry *new_dir, 
+		                  struct dentry *new_dir,
 				  const char *new_name);
 
-    struct dentry *debugfs_create_symlink(const char *name, 
+    struct dentry *debugfs_create_symlink(const char *name,
                                           struct dentry *parent,
 				      	  const char *target);
 
@@ -192,4 +192,20 @@ Notes:
 	[1] http://lwn.net/Articles/309298/
 ============================================================================
 JIFFIES CLOCK:
+/*
+ * The 64-bit value is not atomic - you MUST NOT read it
+ * without sampling the sequence number in jiffies_lock.
+ * get_jiffies_64() will do this for you as appropriate.
+ */
+extern u64 __jiffy_data jiffies_64;
+extern unsigned long volatile __jiffy_data jiffies;
+
+#if (BITS_PER_LONG < 64)
+u64 get_jiffies_64(void);
+#else
+static inline u64 get_jiffies_64(void)
+{
+	return (u64)jiffies;
+}
+#endif
 

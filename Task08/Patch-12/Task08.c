@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Wed 14 Jan 2015 10:48:23 PM IRST
+ * [] Last Modified : Thu 15 Jan 2015 07:34:37 AM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -24,19 +24,19 @@
 MODULE_AUTHOR("Parham Alvani");
 MODULE_LICENSE("GPL");
 
-struct dentry *root;
+static struct dentry *root;
 
 /*
- * Data management: read and write
+ * ID data management: read and write
 */
-ssize_t task08_read(struct file *filp, char __user *buf, size_t count,
+ssize_t task08_read_id(struct file *filp, char __user *buf, size_t count,
 		loff_t *f_pos)
 {
 	return simple_read_from_buffer(buf, count, f_pos,
 			"8d7990499d47\n", strlen("8d7990499d47\n"));
 }
 
-ssize_t task08_write(struct file *filp, const char __user *buf, size_t count,
+ssize_t task08_write_id(struct file *filp, const char __user *buf, size_t count,
 		loff_t *f_pos)
 {
 	int retval = 0;
@@ -58,10 +58,27 @@ ssize_t task08_write(struct file *filp, const char __user *buf, size_t count,
 	return retval;
 }
 
-const struct file_operations task08_fops = {
+const struct file_operations task08_fops_id = {
 	.owner =	THIS_MODULE,
-	.read =		task08_read,
-	.write =	task08_write,
+	.read =		task08_read_id,
+	.write =	task08_write_id,
+};
+
+/*
+ * Jiffies data management: read and write
+*/
+ssize_t task08_read_jiffies(struct file *filp, char __user *buf, size_t count,
+		loff_t *f_pos)
+{
+	char timestr[30];
+	sprintf(timestr, "%lld\n", get_jiffies_64());
+	return simple_read_from_buffer(buf, count, f_pos,
+			timestr, strlen(timestr));
+}
+
+const struct file_operations task08_fops_jiffies = {
+	.owner =	THIS_MODULE,
+	.read =		task08_read_jiffies,
 };
 
 /*
@@ -85,11 +102,11 @@ int __init task08_init_module(void)
 	if (root == -ENODEV)
 		return -ENODEV;
 	/* Create id file */
-	id = debugfs_create_file("id", 0666, root, NULL, &task08_fops);
+	id = debugfs_create_file("id", 0666, root, NULL, &task08_fops_id);
 	if (!id)
 		goto sub_error;
 	/* Create jiffies file */
-	jiffies = debugfs_create_file("jiffies", 0666, root, NULL, &task08_fops);
+	jiffies = debugfs_create_file("jiffies", 0666, root, NULL, &task08_fops_jiffies);
 	if (!jiffies)
 		goto sub_error;
 
