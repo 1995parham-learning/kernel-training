@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 29-12-2014
  *
- * [] Last Modified : Thu 15 Jan 2015 08:13:26 AM IRST
+ * [] Last Modified : Mon 19 Jan 2015 10:05:20 PM IRST
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -14,17 +14,22 @@
 #include <linux/init.h>
 
 #include <linux/kernel.h>       /* printk() */
+#include <linux/slab.h>		/* mm tools */
 #include <linux/string.h>	/* strlen() */
 #include <linux/fs.h>           /* everything... */
 #include <linux/debugfs.h>	/* debugfs things.. */
 #include <linux/jiffies.h>	/* jiffies timer things.. */
 #include <linux/errno.h>        /* error codes */
 #include <linux/types.h>        /* size_t */
+#include <linux/rwsem.h>	/* semaphore tools */
 
 MODULE_AUTHOR("Parham Alvani");
 MODULE_LICENSE("GPL");
 
+static char *data;
+static int size;
 static struct dentry *root;
+static struct rw_semaphore sem;
 
 /*
  * ID data management: read and write
@@ -71,6 +76,7 @@ ssize_t task08_read_jiffies(struct file *filp, char __user *buf, size_t count,
 		loff_t *f_pos)
 {
 	char timestr[30];
+	
 	sprintf(timestr, "%lld\n", get_jiffies_64());
 	return simple_read_from_buffer(buf, count, f_pos,
 			timestr, strlen(timestr));
@@ -87,14 +93,20 @@ const struct file_operations task08_fops_jiffies = {
 ssize_t task08_read_foo(struct file *filp, char __user *buf, size_t count,
 		loff_t *f_pos)
 {
+	down_read(&sem);
+	return simple_read_from_buffer(buf, count, f_pos,
+			data, size);
 }
 
-ssize_t task08_write_foo(struct file *filp, const char __user *buf, size_t count,
-		loff_t *f_pos)
-{	
+ssize_t task08_write_foo(struct file *filp, const char __user *buf,
+		size_t count, loff_t *f_pos)
+{
+	down_write(&sem);
+	return (size = simple_write_to_buffer(data, PAGE_SIZE, f_pos,
+			buf, count));
 }
 
-const struct file_operations task08_fops_id = {
+const struct file_operations task08_fops_foo = {
 	.owner =	THIS_MODULE,
 	.read =		task08_read_foo,
 	.write =	task08_write_foo,
@@ -108,6 +120,7 @@ const struct file_operations task08_fops_id = {
 void __exit task08_cleanup_module(void)
 {
 	debugfs_remove_recursive(root);
+	kfree(data);
 }
 
 int __init task08_init_module(void)
@@ -115,6 +128,11 @@ int __init task08_init_module(void)
 	struct dentry *id = NULL;
 	struct dentry *jiffies = NULL;
 	struct dentry *foo = NULL;
+
+	data = kmalloc(PAGE_SIZE, GFP_KERNEL);
+
+	/* Initiate semaphore */
+	init_rwsem(&sem);
 
 	/* Create root directory */
 	root = debugfs_create_dir("eudyptula", NULL);
@@ -127,7 +145,8 @@ int __init task08_init_module(void)
 	if (!id)
 		goto sub_error;
 	/* Create jiffies file */
-	jiffies = debugfs_create_file("jiffies", 0444, root, NULL, &task08_fops_jiffies);
+	jiffies = debugfs_create_file("jiffies", 0444, root, NULL,
+			&task08_fops_jiffies);
 	if (!jiffies)
 		goto sub_error;
 	/* Create foo file */
