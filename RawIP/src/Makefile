@@ -21,6 +21,7 @@ CFLAGS=-Wall -O0 -g -std=gnu11
 LDLIBS=$(MLIB)
 endif
 ASFLAGS=-Wall -O0 -g
+CFLAGS+=-DDEBUG
 
 $(P): $(OBJ)
 	$(CC) -o $(P) $(OBJ) $(LDLIBS)
