@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 31-03-2015
  *
- * [] Last Modified : Sat 04 Apr 2015 01:24:05 AM IRDT
+ * [] Last Modified : Sat 04 Apr 2015 01:42:26 AM IRDT
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	saddr = inet_addr(argv[1]);
 	daddr = inet_addr(argv[2]);
 
-	sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+	sockfd = socket(AF_INET, SOCK_RAW, 110);
 	if (sockfd < 0)
 		sdie("socket()");
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 	/* Time To Live */
 	ip->ttl = 73;
 	/* Protocol */
-	ip->protocol = 1;
+	ip->protocol = 110;
 	/* Source Address */
 	ip->saddr = saddr;
 	/* Destination Address */
@@ -102,5 +102,9 @@ int main(int argc, char *argv[])
 	if (recvfrom(sockfd, packet, packet_len, 0, NULL, NULL) < 1)
 		sdie("recvfrom()");
 	puts("received.... :-)");
-
+	
+	/* printing into file */
+	FILE *packetfile;
+	packetfile = fopen("Packet.bin", "w");
+	fwrite(packet, packet_len, 1, packetfile);
 }
