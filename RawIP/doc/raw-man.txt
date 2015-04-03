@@ -1,0 +1,27 @@
+Raw sockets allow new IPv4 protocols to be implemented in user space.
+A raw socket receives or sends the raw datagram not including link level headers.
+The IPv4 layer generates an IP header when sending a packet unless the IP_HDRINCL socket option is enabled on the socket. When it is enabled, the packet must contain an IP header. 
+For receiving the IP header is always included in the packet.
+Only processes with an effective user ID of 0 or the CAP_NET_RAW capability are allowed to open raw sockets.
+All packets or errors matching the protocol number specified for the raw socket are passed to this socket.
+For a list of the allowed protocols see RFC 1700 assigned numbers and getprotobyname(3).
+A protocol of IPPROTO_RAW implies enabled IP_HDRINCL and is able to send any IP protocol that is specified in the passed header.
+Receiving of all IP protocols via IPPROTO_RAW is not possible using raw sockets.
+
++----------------------------------------------------+
+| IP Header fields modified on sending by IP_HDRINCL |
++----------------------------------------------------+
+|IP Checksum           |Always filled in.            |
++----------------------+-----------------------------+
+|Source Address        |Filled in when zero.         |
++----------------------+-----------------------------+
+|Packet Id             |Filled in when zero.         |
++----------------------+-----------------------------+
+|Total Length          |Always filled in.            |
++----------------------+-----------------------------+
+
+If IP_HDRINCL is specified and the IP header has a nonzero destination address then the destination address of the socket is used to route the packet.
+When MSG_DONTROUTE is specified, the destination address should refer to a local interface, otherwise a routing table lookup is done anyway but gatewayed routes are ignored.
+If IP_HDRINCL isn't set, then IP header options can be set on raw sockets with setsockopt(2); see ip(7) for more information.
+In Linux 2.2, all IP header fields and options can be set using IP socket options. This means raw sockets are usually needed only for new protocols or protocols with no user interface (like ICMP).
+When a packet is received, it is passed to any raw sockets which have been bound to its protocol before it is passed to other protocol handlers (e.g., kernel protocol modules).
