@@ -8,7 +8,7 @@
 # =======================================
 
 P=RawIP
-OBJ=main.o common.o
+OBJ=main.o common.o ip_func.o
 LIB=
 MLIB=
 
@@ -24,8 +24,9 @@ ASFLAGS=-Wall -O0 -g
 
 $(P): $(OBJ)
 	$(CC) -o $(P) $(OBJ) $(LDLIBS)
-main.o: common.h
+main.o: common.h ip_func.h
 common.o: common.h
+ip_func.o: ip_func.h
 
 .PHONY: clean
 clean:

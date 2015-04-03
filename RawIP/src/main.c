@@ -5,7 +5,7 @@
  *
  * [] Creation Date : 31-03-2015
  *
- * [] Last Modified : Tue 31 Mar 2015 01:58:20 AM IRDT
+ * [] Last Modified : Fri 03 Apr 2015 11:54:30 PM IRDT
  *
  * [] Created By : Parham Alvani (parham.alvani@gmail.com)
  * =======================================
@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -21,6 +22,7 @@
 #include <unistd.h>
 
 #include "common.h"
+#include "ip_func.h"
 
 int main(int argc, char *argv[])
 {
@@ -56,20 +58,32 @@ int main(int argc, char *argv[])
 		sdie("malloc()");
 	}
 	memset(packet, 0, packet_len);
-	
+
 	/* IP header (do you believe ??) */
 	struct iphdr *ip = (struct iphdr *) packet;
 	
+	/* Version */
 	ip->version = 4;
+	/* Header Length */
+	/* can you use (packet_len * 8) / 32 ? */
 	ip->ihl = 5;
+	/* Type Of Service */	
 	ip->tos = 0;
 	/* Total length */
 	ip->tot_len = htons(packet_len);
+	/* ID */
 	ip->id = rand();
+	/* Fragmentation Offset */
 	ip->frag_off = 0;
+	/* Time To Live */
 	ip->ttl = 73;
-	ip->protocol = 115;
+	/* Protocol */
+	ip->protocol = 1;
+	/* Checksum */
+	ip->check = ip_checksum(ip);
+	/* Source Address */
 	ip->saddr = saddr;
+	/* Destination Address */
 	ip->daddr = daddr;
 
 	struct sockaddr_in servaddr;
