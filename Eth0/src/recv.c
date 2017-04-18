@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 	int sockfd;
 	int sockopt;
 	ssize_t numbytes;
+	struct sockaddr_ll socket_address;
 	struct ifreq ifopts;	/* set promiscuous mode */
 	struct sockaddr_storage their_addr;
 	uint8_t buf[BUF_SIZ];
@@ -115,5 +116,19 @@ int main(int argc, char *argv[])
 				eh->ether_dhost[3],
 				eh->ether_dhost[4],
 				eh->ether_dhost[5]);
+
+		/* Address length*/
+		socket_address.sll_halen = ETH_ALEN;
+
+		/* Destination MAC */
+		socket_address.sll_addr[0] = eh->ether_dhost[0];
+		socket_address.sll_addr[1] = eh->ether_dhost[1];
+		socket_address.sll_addr[2] = eh->ether_dhost[2];
+		socket_address.sll_addr[3] = eh->ether_dhost[3];
+		socket_address.sll_addr[4] = eh->ether_dhost[4];
+		socket_address.sll_addr[5] = eh->ether_dhost[5];
+
+		sendto(sockfd, buf, numbytes, 0,
+				(struct sockaddr*) &socket_address, sizeof(struct sockaddr_ll) < 0);
 	}
 }
