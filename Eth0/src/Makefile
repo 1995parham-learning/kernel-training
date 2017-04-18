@@ -1,5 +1,5 @@
 P=Eth0
-OBJ=recv.o
+OBJ=main.o
 LIB=
 MLIB=
 
@@ -16,7 +16,7 @@ CFLAGS+=-DDEBUG
 
 $(P): $(OBJ)
 	$(CC) -o $(P) $(OBJ) $(LDLIBS)
-recv.o: recv.c
+main.o: main.c
 
 .PHONY: clean
 clean:
