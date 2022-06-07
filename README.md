@@ -14,11 +14,11 @@ I am going to describe the each project a little, so you can use them easier.
 
 ### Networking
 
-|    Layer    | Project |
+| Layer       | Project |
 | ----------- | ------- |
 | Application |         |
-| Transport   |  RawIP  |
-| Network     |  Eth0   |
+| Transport   | RawIP   |
+| Network     | Eth0    |
 | Link Layer  |         |
 | Physical    |         |
 
@@ -28,7 +28,7 @@ Simple project for testing and using `SOCK_RAW` option of `socket()` system call
 in this project I simply create IP packet and fill IP header by myself in application.
 Please note that in order to run this application you need root access.
 
-* [ICMP ping flooding](http://www.binarytides.com/icmp-ping-flood-code-sockets-c-linux/)
+- [ICMP ping flooding](http://www.binarytides.com/icmp-ping-flood-code-sockets-c-linux/)
 
 #### Eth0
 
