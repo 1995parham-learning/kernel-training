@@ -1,13 +1,16 @@
-# Kernel-Trainning
+# Kernel Trainning 🔥
 
 ## Introduction
-My kernel learning and testing repository :-))
+
+Here, I am going to work and have fun with Linux kernel. When I was young, I registered at [Eudyptula Challenge](http://eudyptula-challenge.org/) and did some of its task. It was a great experience for me and because of university I dropped it, and now they aren't accepting new people, so I regret it.
 
 > Do you pine for the days when men were men and wrote their own device drivers?
 >
 > Linus Torvalds
 
-## Project List
+## Projects
+
+I am going to describe the each project a little, so you can use them easier.
 
 ### Networking
 
